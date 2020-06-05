@@ -1,0 +1,98 @@
+#!/bin/bash
+
+
+source ${HOME}/kcpark/dotfiles/bash/base
+
+
+function start-scheduler() {
+    airflow scheduler 2>&1 \
+        | /usr/sbin/cronolog ~/airflow/access/%Y%m%d.scheduler.log &
+}
+
+
+function start-webserver() {
+    airflow webserver 2>&1 \
+        | /usr/sbin/cronolog ~/airflow/access/%Y%m%d.webserver.log &
+}
+
+
+function stop-webserver() {
+    pgid=$(
+    ps -eo pgid,cmd \
+        | grep airflow-webserver \
+        | grep master \
+        | awk '{ print $1 }'
+    )
+    if [ -n "${pgid}" ]; then
+        kill -9 -${pgid}
+    fi
+}
+
+
+function stop-scheduler() {
+    pgid=$(
+    ps -eo pgid,cmd \
+        | grep python \
+        | grep "airflow scheduler" \
+        | head -1 \
+        | awk '{ print $1 }'
+    )
+    if [ -n "${pgid}" ]; then
+        kill -9 -${pgid}
+    fi
+}
+
+
+function start() {
+    start-scheduler;
+    start-webserver;
+}
+
+
+function stop() {
+    stop-webserver;
+    stop-scheduler;
+}
+
+
+function restart-scheduler() {
+    stop-scheduler;
+    start-scheduler;
+}
+
+
+function restart-webserver() {
+    stop-webserver;
+    start-webserver;
+}
+
+
+function restart() {
+    stop;
+    start;
+}
+
+
+case $1 in
+    start)
+        start;;
+    start-scheduler)
+        start-scheduler;;
+    start-webserver)
+        start-webserver;;
+    stop)
+        stop;;
+    stop-scheduler)
+        stop-scheduler;;
+    stop-webserver)
+        stop-webserver;;
+    restart)
+        restart;;
+    restart-scheduler)
+        restart-scheduler;;
+    restart-webserver)
+        restart-webserver;;
+    *)
+        echo "Usage: $(basename $0) {start|stop|restart}[-scheduler|-webserver]" >&2
+        exit 1
+esac

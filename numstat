@@ -1,0 +1,34 @@
+#!/bin/env python
+
+
+import argparse
+import sys
+
+import numpy as np
+from scipy.stats import entropy
+
+
+def main(args):
+    nums = []
+    for l in args.input:
+        nums.append(float(l.strip()))
+    args.output.write('Max: {}\n'.format(np.max(nums)))
+    args.output.write('Min: {}\n'.format(np.min(nums)))
+    args.output.write('Mean: {}\n'.format(np.mean(nums)))
+    args.output.write('Median: {}\n'.format(np.median(nums)))
+    args.output.write('STD: {}\n'.format(np.std(nums)))
+    args.output.write('H: {}\n'.format(entropy(nums)))
+
+
+if __name__ == '__main__':
+    argparser = argparse.ArgumentParser()
+    argparser.add_argument(
+        '-i', '--input', help='input file',
+        type=argparse.FileType('r'), default=sys.stdin
+    )
+    argparser.add_argument(
+        '-o', '--output', help='output file',
+        type=argparse.FileType('w'), default=sys.stdout
+    )
+    args = argparser.parse_args()
+    main(args)

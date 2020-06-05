@@ -1,0 +1,6 @@
+#!/bin/bash
+
+sort \
+	| uniq -c \
+	| awk -v OFS='\t' '{ print $NF, $1 }' \
+	| sort -k2,2nr

@@ -1,0 +1,5 @@
+#!/bin/bash
+
+for pid in $@; do
+    kill -9 ${pid}
+done

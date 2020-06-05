@@ -1,0 +1,18 @@
+#!/bin/bash
+
+if [ -n "$1" ]; then
+    ps -eo pid,user,etime,cmd \
+        | /bin/grep "$1" \
+        | /bin/grep -Ev "grep|killgrep"
+    read -p "Kill Above? [Yy] " -n1 -r
+    echo
+    if [[ ${REPLY} =~ [Yy] ]]; then
+        ps -eo pid,user,etime,cmd \
+            | /bin/grep "$1" \
+            | /bin/grep -v grep \
+            | tee /dev/tty \
+            | awk '{ print $1 }' \
+            | xargs kill -9 \
+        && echo Killed Successfully
+    fi
+fi

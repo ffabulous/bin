@@ -1,0 +1,6 @@
+#!/bin/bash
+
+LOGDIR=${1:-.}
+PORT=${2:-6006}
+
+tensorboard --host 0.0.0.0 --logdir ${LOGDIR} --port ${PORT}

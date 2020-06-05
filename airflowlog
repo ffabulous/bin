@@ -1,0 +1,5 @@
+#!/bin/bash
+
+log_dir=~/airflow/logs/$1/$2
+ts=${3:-$(ls $log_dir | tail -1)}
+less +F $log_dir/$(tsconv ${ts})

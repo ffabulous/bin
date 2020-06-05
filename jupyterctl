@@ -1,0 +1,104 @@
+#!/bin/bash
+
+
+SERVE_DIR=.
+TMP_DIR=~/tmp
+PORT=8888
+APP=notebook
+DS=$(date +%Y-%m-%d)
+
+
+function get_pid() {
+	if [ -e ${TMP_DIR}/jupyter-${PORT}.pid ]; then
+		cat ${TMP_DIR}/jupyter-${PORT}.pid
+	fi
+}
+
+function is_running() {
+	if ps -p $1 >/dev/null 2>&1; then
+		return 0
+	fi
+	return 1
+}
+
+function start() {
+	mkdir -p ${TMP_DIR}/logs
+	pid=$(get_pid)
+	if [ -n "${pid}" ] && is_running ${pid}; then
+		echo "Already Running: ${pid}" >&2
+	else
+		nohup jupyter ${APP} \
+			--ip=0.0.0.0 \
+			--port=${PORT} \
+			--no-browser \
+			--notebook-dir=${SERVE_DIR} \
+			>${TMP_DIR}/logs/jupyter-${PORT}.${DS}.log 2>&1 &
+		echo $! >${TMP_DIR}/jupyter-${PORT}.pid
+	fi
+}
+
+function stop() {
+	pid=$(get_pid)
+	if [ -n "${pid}" ]; then
+		kill -9 ${pid} >/dev/null 2>&1
+		rm -v ${TMP_DIR}/jupyter-${PORT}.pid
+	fi
+}
+
+function restart() {
+	stop
+	sleep 1
+	start
+}
+
+function usage() {
+	echo "Usage: $(basename $0) [options] {start|stop|restart}"
+	echo "Options:"
+	echo "  -d, --dir   serving directory  <default: .>"
+	echo "  -p, --port  port               <default: ${PORT}>"
+	echo "  -L, --lab   use jupyterlab     <default: notebook>"
+	echo "  -h, --help  print this help"
+}
+
+
+OPTS=$(getopt --options=hd:p:L --longoptions=help,dir:,port:,lab --name "$(basename $0)" -- "$@")
+if [[ $? != 0 ]]; then
+	exit 1
+fi
+eval set -- "${OPTS}"
+while true; do
+	case $1 in
+		-d|--dir)
+			SERVE_DIR=$2
+			shift 2
+			;;
+		-p|--port)
+			PORT=$2
+			shift 2
+			;;
+		-L|--lab)
+			APP=lab
+			shift 1
+			;;
+		-h|--help)
+			usage
+			exit 0
+			;;
+		--)
+			shift
+			break
+			;;
+	esac
+done
+
+case $1 in
+	start)
+		start;;
+	stop)
+		stop;;
+	restart)
+		restart;;
+	*)
+		usage >&2
+		exit 1
+esac

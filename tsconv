@@ -1,0 +1,25 @@
+#!/bin/env python
+
+
+import argparse
+from datetime import timedelta
+
+from dateutil import parser
+
+
+def main(args):
+	ts = parser.parse(args.ts)
+	print ts.strftime(args.format)
+
+
+if __name__ == '__main__':
+	argparser = argparse.ArgumentParser()
+	argparser.add_argument(
+		'-F', '--format', help='time format', default='%Y-%m-%dT%H:%M:%S'
+	)
+	argparser.add_argument('ts')
+	args = argparser.parse_args()
+	main(args)
+
+
+# vim:noet:sw=4:ts=4:tw=79

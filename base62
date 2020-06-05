@@ -1,0 +1,39 @@
+#!/bin/env python
+# NOTE: pip install pybase62
+
+
+from __future__ import division, print_function
+
+import argparse
+import sys
+
+import base62
+
+
+def main(args):
+    for line in args.input:
+        line = line.strip()
+        if args.idno:
+            ret = base62.encode(int(line), charset=base62.CHARSET_INVERTED)
+            args.output.write(ret + '\n')
+        else:
+            ret = base62.decode(line, charset=base62.CHARSET_INVERTED)
+            args.output.write(str(ret) + '\n')
+
+
+if __name__ == '__main__':
+    argparser = argparse.ArgumentParser()
+    argparser.add_argument(
+        '-i', '--input', help='input file',
+        type=argparse.FileType('r'), default=sys.stdin
+    )
+    argparser.add_argument(
+        '-o', '--output', help='output file',
+        type=argparse.FileType('w'), default=sys.stdout
+    )
+    argparser.add_argument(
+        '--idno', help='usid to idno',
+        action='store_true', default=False
+    )
+    args = argparser.parse_args()
+    main(args)

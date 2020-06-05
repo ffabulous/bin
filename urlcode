@@ -1,0 +1,36 @@
+#!/usr/bin/env python
+
+
+from __future__ import division, print_function
+
+import argparse
+from pprint import pprint
+import sys
+from urllib import parse
+
+
+def main(args):
+    for line in args.input:
+        url = line.strip()
+        if args.encode:
+            print(parse.quote(url))
+        else:
+            print(parse.unquote(url))
+            pprint(parse.parse_qs(url))
+
+
+if __name__ == '__main__':
+    argparser = argparse.ArgumentParser()
+    argparser.add_argument(
+        '-i', '--input', help='input file',
+        type=argparse.FileType('r'), default=sys.stdin
+    )
+    argparser.add_argument(
+        '-o', '--output', help='output file',
+        type=argparse.FileType('w'), default=sys.stdout
+    )
+    argparser.add_argument(
+        '-e', '--encode', action='store_true',
+    )
+    args = argparser.parse_args()
+    main(args)

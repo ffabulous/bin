@@ -1,0 +1,36 @@
+#!/bin/env python
+
+
+from __future__ import print_function
+
+import argparse
+from datetime import timedelta
+
+from dateutil import parser
+
+
+def main(args):
+	fr = parser.parse(args.fr)
+	to = parser.parse(args.to)
+	td = timedelta(minutes=args.delta)
+	ts = []
+	while to >= fr:
+		ts.append(fr.strftime(args.format))
+		fr += td
+	if args.reverse:
+		ts.reverse()
+	print('\n'.join(ts))
+
+
+if __name__ == '__main__':
+	argparser = argparse.ArgumentParser()
+	argparser.add_argument('-f', '--fr', help='from time', required=True)
+	argparser.add_argument('-t', '--to', help='to time', required=True)
+	argparser.add_argument('-F', '--format', default='%Y-%m-%dT%H')
+	argparser.add_argument('-d', '--delta', help='default: 60 min', type=int, default=60)
+	argparser.add_argument('-r', '--reverse', action='store_true')
+	args = argparser.parse_args()
+	main(args)
+
+
+# vim:noet:sw=4:ts=4:tw=79
